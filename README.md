@@ -1,20 +1,11 @@
-# Контрольная работа №1 — Практики 1–5
+# Практикум «Фронтенд и бэкенд», 4 семестр
 
-## Содержание репозитория
+| Папка        | Содержание                                                                                                                                                                                                                                                 |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `practice-1` | Карточка товара: HTML + SCSS (переменные, миксины, БЭМ-подобная разметка). Открыть `index.html` в браузере.                                                                                                                                                |
+| `practice-2` | Express, порт 3000. CRUD по `/products` (GET, GET/:id, POST, PATCH, DELETE), данные в памяти. `npm install && npm start`                                                                                                                                   |
+| `practice-3` | То же, что practice-2 — закрепление. `npm install && node app.js`                                                                                                                                                                                          |
+| `practice-4` | **Backend:** Express :3001, CORS, `/api/products` (CRUD), данные в `data/products.js`. **Frontend:** React, Vite, Axios; страница товаров с модальным окном. Backend: `practice-4/backend` → `npm start`. Frontend: `practice-4/frontend` → `npm run dev`. |
+| `practice-5` | Как practice-4 + OpenAPI 3.0 (swagger-jsdoc по JSDoc в `routes/products.js`) и Swagger UI на `/api-docs`. Backend: `practice-5/backend` → `npm start`. Документация: http://localhost:3001/api-docs                                                        |
 
-| Практика       | Описание                                                                                                                                |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| **practice-2** | Express-сервер (базовый).                                                                                                               |
-| **practice-3** | Express-приложение (расширенная конфигурация).                                                                                          |
-| **practice-4** | Fullstack: backend (Express, API товаров) + frontend (React + Vite).                                                                    |
-| **practice-5** | Fullstack + Swagger: CRUD API товаров, документация OpenAPI по адресу `/api-docs` (swagger-jsdoc, swagger-ui-express, JSDoc-аннотации). |
-
----
-
-## Запуск
-
-- **practice-2, practice-3:** `npm start` в каталоге практики.
-- **practice-4, practice-5:** Backend — `cd backend && npm start` (порт 3001). Frontend — `cd frontend && npm run dev` (Vite, порт 5173).
-- Документация API (practice-5): http://localhost:3001/api-docs
-
----
+**Стек:** HTML, SCSS, React, Vite, Axios, Node.js, Express, CORS, swagger-jsdoc, swagger-ui-express.
