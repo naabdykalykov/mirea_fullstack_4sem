@@ -22,8 +22,17 @@ export default function RegisterPage({ onSwitchPage }) {
                 <input
                   className="auth-input"
                   type="text"
-                  name="name"
-                  placeholder="Иван Иванов"
+                  name="first_name"
+                  placeholder="Иван"
+                />
+              </label>
+              <label className="auth-label">
+                Фамилия
+                <input
+                  className="auth-input"
+                  type="text"
+                  name="last_name"
+                  placeholder="Иванов"
                 />
               </label>
               <label className="auth-label">
