@@ -3,7 +3,28 @@ const bcrypt = require("bcrypt");
 const users = require("../data/users.js");
 
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET } = require("../configs.js");
+const {
+  JWT_SECRET,
+  REFRESH_SECRET,
+  ACCESS_EXPIRES_IN,
+  REFRESH_EXPIRES_IN,
+} = require("../configs.js");
+
+const refreshTokens = new Set();
+
+function generateAccessToken(user) {
+  const payload = { userId: user.id };
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: ACCESS_EXPIRES_IN });
+}
+
+function generateRefreshToken(user) {
+  const payload = { userId: user.id };
+  const token = jwt.sign(payload, REFRESH_SECRET, {
+    expiresIn: REFRESH_EXPIRES_IN,
+  });
+  refreshTokens.add(token);
+  return token;
+}
 
 const requireAuth = require("../middleware/requireAuth.js");
 
@@ -213,11 +234,12 @@ router.post("/login", async (req, res, next) => {
       return res.status(401).json({ message: "Неверный email или пароль" });
     }
 
-    const payload = { userId: user.id };
-    const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
 
     res.json({
       accessToken,
+      refreshToken,
       user: {
         id: user.id,
         email: user.email,
@@ -227,6 +249,28 @@ router.post("/login", async (req, res, next) => {
     });
   } catch (err) {
     next(err);
+  }
+});
+
+router.post("/refresh", (req, res) => {
+  const { refreshToken } = req.body || {};
+
+  if (!refreshToken || !refreshTokens.has(refreshToken)) {
+    return res.status(401).json({ message: "Неверный refresh токен" });
+  }
+
+  try {
+    const payload = jwt.verify(refreshToken, REFRESH_SECRET);
+    const user = users.find((u) => u.id === payload.userId);
+
+    if (!user) {
+      return res.status(401).json({ message: "Пользователь не найден" });
+    }
+
+    const accessToken = generateAccessToken(user);
+    res.json({ accessToken });
+  } catch (e) {
+    return res.status(401).json({ message: "Неверный refresh токен" });
   }
 });
 
