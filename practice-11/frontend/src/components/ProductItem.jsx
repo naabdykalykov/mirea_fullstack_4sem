@@ -1,4 +1,4 @@
-export default function ProductItem({ product, onEdit, onDelete }) {
+export default function ProductItem({ product, onEdit, onDelete, canEdit, canDelete }) {
   const { id, name, category, description, price, stock, rating, images } = product;
   const inStock = stock > 0;
   const preview = Array.isArray(images) && images.length > 0 ? images[0] : null;
@@ -48,12 +48,16 @@ export default function ProductItem({ product, onEdit, onDelete }) {
       </div>
 
       <div className="productActions">
-        <button type="button" className="btn" onClick={() => onEdit(product)}>
-          Редактировать
-        </button>
-        <button type="button" className="btn btn--danger" onClick={() => onDelete(id)}>
-          Удалить
-        </button>
+        {canEdit && (
+          <button type="button" className="btn" onClick={() => onEdit(product)}>
+            Редактировать
+          </button>
+        )}
+        {canDelete && (
+          <button type="button" className="btn btn--danger" onClick={() => onDelete(id)}>
+            Удалить
+          </button>
+        )}
       </div>
     </div>
   );

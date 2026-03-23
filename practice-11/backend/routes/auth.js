@@ -1,8 +1,8 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const users = require("../data/users.js");
 
-const jwt = require("jsonwebtoken");
 const {
   JWT_SECRET,
   REFRESH_SECRET,
@@ -13,12 +13,12 @@ const {
 const refreshTokens = new Set();
 
 function generateAccessToken(user) {
-  const payload = { userId: user.id };
+  const payload = { userId: user.id, role: user.role };
   return jwt.sign(payload, JWT_SECRET, { expiresIn: ACCESS_EXPIRES_IN });
 }
 
 function generateRefreshToken(user) {
-  const payload = { userId: user.id };
+  const payload = { userId: user.id, role: user.role };
   const token = jwt.sign(payload, REFRESH_SECRET, {
     expiresIn: REFRESH_EXPIRES_IN,
   });
@@ -123,7 +123,7 @@ const SALT_ROUNDS = 10;
 
 router.post("/register", async (req, res, next) => {
   try {
-    const { email, first_name, last_name, password } = req.body || {};
+    const { email, first_name, last_name, password, role } = req.body || {};
     if (
       !email ||
       typeof email !== "string" ||
@@ -158,6 +158,8 @@ router.post("/register", async (req, res, next) => {
       email: normalizedEmail,
       first_name: first_name.trim(),
       last_name: last_name.trim(),
+      role: role || "user",
+      isBlocked: false,
       passwordHash,
     };
 
@@ -168,6 +170,8 @@ router.post("/register", async (req, res, next) => {
       email: user.email,
       first_name: user.first_name,
       last_name: user.last_name,
+      role: user.role,
+      isBlocked: user.isBlocked,
     });
   } catch (err) {
     next(err);
@@ -225,7 +229,7 @@ router.post("/login", async (req, res, next) => {
     const normalizedEmail = email.trim().toLowerCase();
     const user = users.find((u) => u.email === normalizedEmail);
 
-    if (!user) {
+    if (!user || user.isBlocked) {
       return res.status(401).json({ message: "Неверный email или пароль" });
     }
 
@@ -245,6 +249,8 @@ router.post("/login", async (req, res, next) => {
         email: user.email,
         first_name: user.first_name,
         last_name: user.last_name,
+        role: user.role,
+        isBlocked: user.isBlocked,
       },
     });
   } catch (err) {
@@ -263,12 +269,14 @@ router.post("/refresh", (req, res) => {
     const payload = jwt.verify(refreshToken, REFRESH_SECRET);
     const user = users.find((u) => u.id === payload.userId);
 
-    if (!user) {
+    if (!user || user.isBlocked) {
       return res.status(401).json({ message: "Пользователь не найден" });
     }
 
-    const accessToken = generateAccessToken(user);
-    res.json({ accessToken });
+    refreshTokens.delete(refreshToken);
+    const newAccessToken = generateAccessToken(user);
+    const newRefreshToken = generateRefreshToken(user);
+    res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
   } catch (e) {
     return res.status(401).json({ message: "Неверный refresh токен" });
   }

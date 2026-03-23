@@ -14,7 +14,7 @@ function requireAuth(req, res, next) {
   try {
     const payload = jwt.verify(token, JWT_SECRET);
     const user = users.find((u) => u.id === payload.userId);
-    if (!user) {
+    if (!user || user.isBlocked) {
       return res.status(401).json({ message: "Требуется авторизация" });
     }
     req.user = {
@@ -22,6 +22,7 @@ function requireAuth(req, res, next) {
       email: user.email,
       first_name: user.first_name,
       last_name: user.last_name,
+      role: user.role,
     };
     next();
   } catch (err) {

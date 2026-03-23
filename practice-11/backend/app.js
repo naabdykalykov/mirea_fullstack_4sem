@@ -23,6 +23,7 @@ app.use("/uploads", express.static(uploadsDir));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openapiSpecification));
 app.use("/api/products", productsRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/users", require("./routes/users.js"));
 
 app.get("/api/health", (req, res) => {
   res.json({ ok: true });

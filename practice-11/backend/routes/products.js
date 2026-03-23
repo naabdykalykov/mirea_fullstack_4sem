@@ -6,6 +6,7 @@ const multer = require("multer");
 const router = express.Router();
 const products = require("../data/products.js");
 const requireAuth = require("../middleware/requireAuth.js");
+const requireRole = require("../middleware/requireRole.js");
 
 const uploadsDir = path.join(__dirname, "..", "uploads");
 if (!fs.existsSync(uploadsDir)) {
@@ -110,7 +111,7 @@ const upload = multer({
  *               items:
  *                 $ref: '#/components/schemas/Product'
  */
-router.get("/", (req, res) => {
+router.get("/", requireAuth, requireRole(["user", "seller", "admin"]), (req, res) => {
   res.json(products);
 });
 
@@ -144,14 +145,19 @@ router.get("/", (req, res) => {
  *                 message:
  *                   type: string
  */
-router.get("/:id", requireAuth, (req, res) => {
+router.get(
+  "/:id",
+  requireAuth,
+  requireRole(["user", "seller", "admin"]),
+  (req, res) => {
   const id = Number(req.params.id);
   const product = products.find((p) => p.id === id);
   if (!product) {
     return res.status(404).json({ message: "Товар не найден" });
   }
   res.json(product);
-});
+  }
+);
 
 /**
  * @openapi
@@ -174,7 +180,7 @@ router.get("/:id", requireAuth, (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Product'
  */
-router.post("/", (req, res) => {
+router.post("/", requireAuth, requireRole(["seller", "admin"]), (req, res) => {
   const { name, category, description, price, stock, rating, images } = req.body;
   const id = products.length ? Math.max(...products.map((p) => p.id)) + 1 : 1;
   const newProduct = {
@@ -226,7 +232,7 @@ router.post("/", (req, res) => {
  *                 message:
  *                   type: string
  */
-router.put("/:id", requireAuth, (req, res) => {
+router.put("/:id", requireAuth, requireRole(["seller", "admin"]), (req, res) => {
   const id = Number(req.params.id);
   const product = products.find((p) => p.id === id);
   if (!product) {
@@ -269,7 +275,7 @@ router.put("/:id", requireAuth, (req, res) => {
  *                 message:
  *                   type: string
  */
-router.delete("/:id", requireAuth, (req, res) => {
+router.delete("/:id", requireAuth, requireRole(["admin"]), (req, res) => {
   const id = Number(req.params.id);
   const index = products.findIndex((p) => p.id === id);
   if (index === -1) {
@@ -333,14 +339,19 @@ router.delete("/:id", requireAuth, (req, res) => {
  *                 message:
  *                   type: string
  */
-router.get("/:id/images", (req, res) => {
+router.get(
+  "/:id/images",
+  requireAuth,
+  requireRole(["user", "seller", "admin"]),
+  (req, res) => {
   const id = Number(req.params.id);
   const product = products.find((p) => p.id === id);
   if (!product) {
     return res.status(404).json({ message: "Товар не найден" });
   }
   res.json(Array.isArray(product.images) ? product.images : []);
-});
+  }
+);
 
 /**
  * @openapi
@@ -384,7 +395,12 @@ router.get("/:id/images", (req, res) => {
  *       404:
  *         description: Товар не найден
  */
-router.post("/:id/images", upload.array("images", 10), (req, res) => {
+router.post(
+  "/:id/images",
+  requireAuth,
+  requireRole(["seller", "admin"]),
+  upload.array("images", 10),
+  (req, res) => {
   const id = Number(req.params.id);
   const product = products.find((p) => p.id === id);
   if (!product) {
@@ -404,7 +420,8 @@ router.post("/:id/images", upload.array("images", 10), (req, res) => {
   product.images.push(...newImages);
 
   res.status(201).json({ images: product.images });
-});
+  }
+);
 
 /**
  * @openapi
@@ -430,7 +447,11 @@ router.post("/:id/images", upload.array("images", 10), (req, res) => {
  *       404:
  *         description: Товар или изображение не найдены
  */
-router.delete("/:id/images/:imageIndex", (req, res) => {
+router.delete(
+  "/:id/images/:imageIndex",
+  requireAuth,
+  requireRole(["seller", "admin"]),
+  (req, res) => {
   const id = Number(req.params.id);
   const imageIndex = Number(req.params.imageIndex);
 
@@ -462,7 +483,8 @@ router.delete("/:id/images/:imageIndex", (req, res) => {
   }
 
   res.status(204).send();
-});
+  }
+);
 
 router.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {

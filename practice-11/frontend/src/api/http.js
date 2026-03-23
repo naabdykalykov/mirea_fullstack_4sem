@@ -59,13 +59,14 @@ async function refreshAccessToken() {
   try {
     const { data } = await api.post("/api/auth/refresh", { refreshToken });
     const newAccessToken = data?.accessToken || null;
+    const newRefreshToken = data?.refreshToken || refreshToken;
     if (!newAccessToken) {
       clearTokens();
       pendingRequests.forEach((p) => p.reject(new Error("No access token")));
       pendingRequests = [];
       return null;
     }
-    setTokens(newAccessToken, refreshToken);
+    setTokens(newAccessToken, newRefreshToken);
     pendingRequests.forEach((p) => p.resolve(newAccessToken));
     pendingRequests = [];
     return newAccessToken;

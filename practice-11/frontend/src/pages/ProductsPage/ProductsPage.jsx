@@ -4,19 +4,28 @@ import ProductsList from "../../components/ProductsList";
 import ProductModal from "../../components/ProductModal";
 import * as api from "../../api";
 
-export default function ProductsPage() {
+export default function ProductsPage({ user, onLogout, onGoUsers }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [editingProduct, setEditingProduct] = useState(null);
 
+  const canManage = user?.role === "seller" || user?.role === "admin";
+  const canDelete = user?.role === "admin";
+
   const loadProducts = () => {
     setLoading(true);
-    api.getProducts().then(setProducts).catch(() => setProducts([])).finally(() => setLoading(false));
+    api
+      .getProducts()
+      .then(setProducts)
+      .catch(() => setProducts([]))
+      .finally(() => setLoading(false));
   };
 
-  useEffect(() => { loadProducts(); }, []);
+  useEffect(() => {
+    loadProducts();
+  }, []);
 
   const openModal = (mode, product = null) => {
     setModalMode(mode);
@@ -30,42 +39,84 @@ export default function ProductsPage() {
   };
 
   const onApi = (promise, onSuccess) => {
-    promise.then(onSuccess).catch((e) => alert(e?.response?.data?.message || "Ошибка")).finally(closeModal);
+    promise
+      .then(onSuccess)
+      .catch((e) => alert(e?.response?.data?.message || "Ошибка"))
+      .finally(closeModal);
   };
 
   const handleDelete = (id) => {
     if (!window.confirm("Удалить товар?")) return;
-    api.deleteProduct(id).then(() => setProducts((p) => p.filter((x) => x.id !== id))).catch((e) => alert(e?.response?.data?.message || "Ошибка"));
+    api
+      .deleteProduct(id)
+      .then(() => setProducts((p) => p.filter((x) => x.id !== id)))
+      .catch((e) => alert(e?.response?.data?.message || "Ошибка"));
   };
 
   const handleSubmitModal = (payload) => {
-    if (modalMode === "create") onApi(api.createProduct(payload), (created) => setProducts((p) => [...p, created]));
-    else onApi(api.updateProduct(payload.id, payload), (updated) => setProducts((p) => p.map((x) => (x.id === updated.id ? updated : x))));
+    if (modalMode === "create")
+      onApi(api.createProduct(payload), (created) => setProducts((p) => [...p, created]));
+    else
+      onApi(
+        api.updateProduct(payload.id, payload),
+        (updated) => setProducts((p) => p.map((x) => (x.id === updated.id ? updated : x)))
+      );
   };
 
-  if (loading) return <div className="page"><div className="app-message">Загрузка...</div></div>;
+  if (loading)
+    return (
+      <div className="page">
+        <div className="app-message">Загрузка...</div>
+      </div>
+    );
 
   return (
     <div className="page">
       <header className="header">
         <div className="header__inner">
           <div className="brand">TechStore</div>
-          <div className="header__right">React</div>
+          <div className="header__right">
+            <span className="userBadge">{user.email} · {user.role}</span>
+            {user.role === "admin" && (
+              <button type="button" className="btn" onClick={onGoUsers}>
+                Пользователи
+              </button>
+            )}
+            <button type="button" className="btn btn--secondary" onClick={onLogout}>
+              Выйти
+            </button>
+          </div>
         </div>
       </header>
       <main className="main">
         <div className="container">
           <div className="toolbar">
             <h1 className="title">Товары</h1>
-            <button type="button" className="btn btn--primary" onClick={() => openModal("create")}>+ Создать</button>
+            {canManage && (
+              <button type="button" className="btn btn--primary" onClick={() => openModal("create")}>
+                + Создать
+              </button>
+            )}
           </div>
-          <ProductsList products={products} onEdit={(p) => openModal("edit", p)} onDelete={handleDelete} />
+          <ProductsList
+            products={products}
+            onEdit={(p) => openModal("edit", p)}
+            onDelete={handleDelete}
+            canEdit={canManage}
+            canDelete={canDelete}
+          />
         </div>
       </main>
       <footer className="footer">
         <div className="footer__inner">© {new Date().getFullYear()} TechStore</div>
       </footer>
-      <ProductModal open={modalOpen} mode={modalMode} initialProduct={editingProduct} onClose={closeModal} onSubmit={handleSubmitModal} />
+      <ProductModal
+        open={modalOpen}
+        mode={modalMode}
+        initialProduct={editingProduct}
+        onClose={closeModal}
+        onSubmit={handleSubmitModal}
+      />
     </div>
   );
 }

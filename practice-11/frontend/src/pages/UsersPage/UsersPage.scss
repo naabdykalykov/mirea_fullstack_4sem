@@ -1,0 +1,111 @@
+$bg: #0b0f19;
+$panel: rgba(255, 255, 255, 0.06);
+$panelHead: rgba(255, 255, 255, 0.08);
+$border: rgba(255, 255, 255, 0.12);
+$text: #e7eaf3;
+$muted: rgba(231, 234, 243, 0.7);
+$primary: #8ab4ff;
+$primaryBg: rgba(138, 180, 255, 0.16);
+$danger: #fca5a5;
+$dangerBg: rgba(252, 165, 165, 0.18);
+
+.usersTable {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: $text;
+}
+
+.usersRow {
+  display: grid;
+  grid-template-columns: 70px 1.4fr 1fr 1fr 150px 150px 220px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid $border;
+  border-radius: 12px;
+  background: $panel;
+  backdrop-filter: blur(4px);
+  font-size: 14px;
+
+  > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 38px;
+  }
+
+  select {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid $border;
+    background: $panelHead;
+    color: $text;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    outline: none;
+
+    option {
+      background: $bg;
+      color: $text;
+    }
+
+    &:focus {
+      border-color: $primary;
+      box-shadow: 0 0 0 2px rgba(138, 180, 255, 0.25);
+    }
+  }
+}
+
+.usersRow--head {
+  font-weight: 700;
+  background: $panelHead;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: $muted;
+  font-size: 13px;
+}
+
+.usersActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+
+  .btn {
+    border-color: $border;
+    color: $text;
+
+    &.btn--danger {
+      border-color: $danger;
+      background: $dangerBg;
+    }
+  }
+}
+
+.status {
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 700;
+  text-align: center;
+  width: fit-content;
+  min-width: 110px;
+}
+
+.status--active {
+  background: $primaryBg;
+  color: $primary;
+}
+
+.status--blocked {
+  background: $dangerBg;
+  color: $danger;
+}
+
+.userBadge {
+  margin-right: 10px;
+  font-weight: 600;
+  color: $muted;
+}
