@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Offline Todos</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <h1>Offline TODO list (Practice 13)</h1>
+    <p>
+      <small
+        >Tasks are stored in localStorage. Static files are cached by a Service
+        Worker for offline use.</small
+      >
+    </p>
+    <form id="todo-form">
+      <input
+        id="todo-input"
+        type="text"
+        placeholder="Add a task"
+        required
+        autocomplete="off"
+      />
+      <button type="submit">Add</button>
+    </form>
+    <ul id="todo-list"></ul>
+    <script src="./app.js"></script>
+  </body>
+</html>
