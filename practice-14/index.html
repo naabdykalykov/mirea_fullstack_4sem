@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Offline Todos</title>
+    <link rel="manifest" href="./manifest.json" />
+    <meta name="theme-color" content="#4285f4" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <link
+      rel="icon"
+      href="./icons/favicon.ico"
+      sizes="16x16"
+      type="image/x-icon"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <h1>Offline TODO list (Practice 14)</h1>
+    <p>
+      <small
+        >Tasks are stored in localStorage. Static files are cached by a Service
+        Worker for offline use. Manifest adds installability.</small
+      >
+    </p>
+    <form id="todo-form">
+      <input
+        id="todo-input"
+        type="text"
+        placeholder="Add a task"
+        required
+        autocomplete="off"
+      />
+      <button type="submit">Add</button>
+    </form>
+    <ul id="todo-list"></ul>
+    <script src="./app.js"></script>
+  </body>
+</html>
