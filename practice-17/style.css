@@ -34,6 +34,22 @@ button {
   font-size: 1rem;
   cursor: pointer;
 }
+#reminder-form {
+  align-items: stretch;
+}
+#reminder-form input {
+  flex: 1;
+}
+#reminder-form button {
+  flex: 0 0 220px;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: normal; /* даём перенос, чтобы текст не обрезался */
+  line-height: 1.2;
+}
 ul {
   list-style: none;
   padding: 0;

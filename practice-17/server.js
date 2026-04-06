@@ -57,6 +57,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "./")));
 
 let subscriptions = [];
+const reminders = new Map(); // id -> { timeoutId, text, reminderTime }
 
 const certPath = path.join(__dirname, "localhost.pem");
 const keyPath = path.join(__dirname, "localhost-key.pem");
@@ -86,6 +87,34 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("newReminder", (reminder) => {
+    const { id, text, reminderTime } = reminder || {};
+    if (!id || !text || !reminderTime) return;
+
+    if (reminders.has(id)) {
+      clearTimeout(reminders.get(id).timeoutId);
+    }
+
+    const delay = reminderTime - Date.now();
+    if (delay <= 0) return;
+
+    const timeoutId = setTimeout(() => {
+      const payload = JSON.stringify({
+        title: "!!! Напоминание",
+        body: text,
+        reminderId: id,
+      });
+      subscriptions.forEach((sub) => {
+        webpush
+          .sendNotification(sub, payload)
+          .catch((err) => console.error("Push error:", err));
+      });
+      reminders.delete(id);
+    }, delay);
+
+    reminders.set(id, { timeoutId, text, reminderTime });
+  });
+
   socket.on("disconnect", () => {
     console.log("Клиент отключён:", socket.id);
   });
@@ -111,6 +140,40 @@ app.post("/unsubscribe", (req, res) => {
 
 app.get("/vapid-public-key", (req, res) => {
   res.json({ publicKey: vapidKeys.publicKey });
+});
+
+app.post("/snooze", (req, res) => {
+  const reminderId = Number.parseInt(req.query.reminderId, 10);
+  if (!reminderId || !reminders.has(reminderId)) {
+    return res.status(404).json({ error: "Reminder not found" });
+  }
+
+  const reminder = reminders.get(reminderId);
+  clearTimeout(reminder.timeoutId);
+
+  const FIVE_MIN = 5 * 60 * 1000;
+  const newReminderTime = Date.now() + FIVE_MIN;
+  const timeoutId = setTimeout(() => {
+    const payload = JSON.stringify({
+      title: "Напоминание отложено",
+      body: reminder.text,
+      reminderId,
+    });
+    subscriptions.forEach((sub) => {
+      webpush
+        .sendNotification(sub, payload)
+        .catch((err) => console.error("Push error:", err));
+    });
+    reminders.delete(reminderId);
+  }, FIVE_MIN);
+
+  reminders.set(reminderId, {
+    timeoutId,
+    text: reminder.text,
+    reminderTime: newReminderTime,
+  });
+
+  res.status(200).json({ message: "Reminder snoozed for 5 minutes" });
 });
 
 const DEFAULT_PORT = 3001;
