@@ -1,0 +1,17 @@
+﻿{
+  "name": "practice-16-server",
+  "version": "1.0.0",
+  "description": "Server for practice 16 (WebSocket + Push)",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "socket.io": "^4.7.5",
+    "web-push": "^3.6.6"
+  }
+}
