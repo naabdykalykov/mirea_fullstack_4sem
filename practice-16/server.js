@@ -92,8 +92,15 @@ io.on("connection", (socket) => {
 });
 
 app.post("/subscribe", (req, res) => {
-  subscriptions.push(req.body);
-  res.status(201).json({ message: "Подписка сохранена" });
+  const sub = req.body;
+  if (!sub?.endpoint) {
+    return res.status(400).json({ message: "Некорректная подписка" });
+  }
+  const exists = subscriptions.some((s) => s.endpoint === sub.endpoint);
+  if (!exists) {
+    subscriptions.push(sub);
+  }
+  res.status(exists ? 200 : 201).json({ message: "Подписка сохранена" });
 });
 
 app.post("/unsubscribe", (req, res) => {

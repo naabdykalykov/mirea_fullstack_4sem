@@ -108,12 +108,17 @@ async function subscribeToPush() {
     userVisibleOnly: true,
     applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
   });
+  await sendSubscriptionToServer(subscription);
+  console.log("Подписка на push отправлена");
+}
+
+async function sendSubscriptionToServer(subscription) {
+  if (!subscription) return;
   await fetch("/subscribe", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(subscription),
   });
-  console.log("Подписка на push отправлена");
 }
 
 async function getVapidPublicKey() {
@@ -160,6 +165,9 @@ if ("serviceWorker" in navigator) {
       if (enablePushBtn && disablePushBtn) {
         const current = await reg.pushManager.getSubscription();
         if (current) {
+          // Сервер при перезапуске теряет список подписок, поэтому пробрасываем актуальную
+          // подписку заново, чтобы пуши снова доходили.
+          await sendSubscriptionToServer(current);
           enablePushBtn.style.display = "none";
           disablePushBtn.style.display = "inline-block";
         }
