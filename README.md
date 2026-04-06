@@ -14,10 +14,10 @@
 | `practice-10` | Refresh token + нормализация email/доп. валидация, Swagger. Backend :3001 `npm install && npm start`, frontend Vite `npm install && npm run dev` (:5173). |
 | `practice-11` | Роли (user/seller/admin) на CRUD, middleware requireAuth/requireRole, Swagger. Backend :3001 `npm install && npm start`, frontend Vite `npm install && npm run dev` (:5173). |
 | `practice-12` | Файл-заглушка, практика = предыдущие задания вместе. |
-| `practice-13` | Offline ToDo + Service Worker (cache-only). Открыть `index.html` в браузере. |
-| `practice-14` | PWA (manifest + icons), offline cache, Service Worker. Открыть `index.html`. |
-| `practice-15` | SPA заметок, ленивая подгрузка content, SW app-shell + dynamic cache. Открыть `index.html`. |
-| `practice-16` | Заметки + Socket.IO синхронизация + Web Push (VAPID). `npm install && npm start`, HTTPS localhost, порт 3001 (авто переход до 3003). |
-| `practice-17` | Напоминания: планирование push + snooze 5 мин, Service Worker actions. Запуск как в practice-16 (HTTPS, `npm install && npm start`, 3001→3003). |
+| `practice-13` | Offline ToDo + Service Worker (cache-only). Задачи лежат в `localStorage`, сервис-воркер кеширует `index.html`/`app.js`/`style.css` и отвечает из кеша; после первой загрузки список доступен даже без сети. Открыть `index.html` в браузере. |
+| `practice-14` | PWA (manifest + icons), offline cache, Service Worker. Можно установить как приложение; кешируются основные ассеты и иконки, при активации воркер удаляет старые кеши; интерфейс остаётся рабочим офлайн. Открыть `index.html`. |
+| `practice-15` | SPA заметок, ленивая подгрузка `content/*`, SW app-shell + dynamic cache. Сервис-воркер кеширует оболочку и загруженные страницы, заметки хранятся в `localStorage`, навигация без перезагрузки, офлайн-доступ сохраняется. Открыть `index.html`. |
+| `practice-16` | Заметки + Socket.IO синхронизация + Web Push (VAPID). При добавлении заметки отправляет событие другим вкладкам и пуш подписчикам; VAPID-ключи лежат в `vapid-keys.json`, подписка повторно шлётся на сервер после рестарта. Требуется HTTPS localhost. Запуск: `npm install && npm start`, порт 3001 (авто сдвиг до 3003). |
+| `practice-17` | Напоминания: планирование push + snooze 5 мин, Service Worker actions. Сервер хранит активные таймеры (Map), ставит `setTimeout` и шлёт push с `reminderId`; кнопка «Отложить» в уведомлении вызывает `/snooze` и переносит таймер на 5 минут. Запуск как в practice-16 (HTTPS, `npm install && npm start`, 3001→3003). |
 
 **Стек:** HTML, SCSS, React, Vite, Axios, Node.js, Express, CORS, swagger-jsdoc, swagger-ui-express, multer, bcrypt, jsonwebtoken, Socket.IO, Service Worker/PWA, Web Push (VAPID).
