@@ -4,9 +4,17 @@
   color: #222;
 }
 body {
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 16px;
+}
+
+.app-layout {
+  width: 100%;
   max-width: 640px;
-  margin: 40px auto;
-  padding: 0 16px;
 }
 h1 {
   font-size: 1.8rem;

@@ -6,9 +6,7 @@ const aboutBtn = document.getElementById("about-btn");
 const enablePushBtn = document.getElementById("enable-push");
 const disablePushBtn = document.getElementById("disable-push");
 
-// VAPID public key (base64url), сгенерирован локально
-const VAPID_PUBLIC_KEY =
-  "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEj28xqegSKWwyUhn3_A9TQZVCekNYRy7uuPgaVWtgV8rr_6jSn0lDJ3g3yJCFAZWdKdngimooIzZpBaLf0Bjsjw";
+let vapidPublicKeyCache = null;
 
 function setActiveButton(activeId) {
   [homeBtn, aboutBtn].forEach((btn) => btn.classList.remove("active"));
@@ -105,9 +103,10 @@ function urlBase64ToUint8Array(base64String) {
 async function subscribeToPush() {
   if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
   const registration = await navigator.serviceWorker.ready;
+  const vapidPublicKey = await getVapidPublicKey();
   const subscription = await registration.pushManager.subscribe({
     userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+    applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
   });
   await fetch("/subscribe", {
     method: "POST",
@@ -115,6 +114,26 @@ async function subscribeToPush() {
     body: JSON.stringify(subscription),
   });
   console.log("Подписка на push отправлена");
+}
+
+async function getVapidPublicKey() {
+  if (vapidPublicKeyCache) return vapidPublicKeyCache;
+
+  const response = await fetch("/vapid-public-key");
+  if (!response.ok) {
+    throw new Error("Не удалось получить VAPID public key с сервера.");
+  }
+
+  const data = await response.json();
+  if (
+    !data?.publicKey ||
+    !/^[A-Za-z0-9_-]{87}$/.test(String(data.publicKey))
+  ) {
+    throw new Error("Сервер вернул некорректный VAPID public key.");
+  }
+
+  vapidPublicKeyCache = data.publicKey;
+  return vapidPublicKeyCache;
 }
 
 async function unsubscribeFromPush() {
@@ -157,9 +176,14 @@ if ("serviceWorker" in navigator) {
               return;
             }
           }
-          await subscribeToPush();
-          enablePushBtn.style.display = "none";
-          disablePushBtn.style.display = "inline-block";
+          try {
+            await subscribeToPush();
+            enablePushBtn.style.display = "none";
+            disablePushBtn.style.display = "inline-block";
+          } catch (err) {
+            console.error("Ошибка подписки на push:", err);
+            alert("Не удалось включить push-уведомления. Проверь консоль.");
+          }
         });
 
         disablePushBtn.addEventListener("click", async () => {
