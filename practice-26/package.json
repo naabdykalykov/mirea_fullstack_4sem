@@ -1,0 +1,12 @@
+{
+  "name": "practice-26",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.11.2",
+    "graphql": "^16.9.0"
+  }
+}
